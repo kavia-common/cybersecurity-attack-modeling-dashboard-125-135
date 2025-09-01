@@ -15,7 +15,7 @@ export default [
       "coverage/",
       ".vscode/",
       ".idea/",
-      "*.config.mjs",
+      "*.config.mjs"
     ],
   },
   {
@@ -23,20 +23,26 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: "./tsconfig.json",
+        project: "./tsconfig.json"
       },
     },
     plugins: {
-      "@typescript-eslint": tseslint,
+      "@typescript-eslint": tseslint
     },
     rules: {
-      // Your custom rules here
+      "no-unused-vars": "warn"
     },
   },
   {
     languageOptions: {
       globals: {
         document: "readonly",
+        window: "readonly",
+        JSX: "readonly",
+        setInterval: "readonly",
+        clearInterval: "readonly",
+        setTimeout: "readonly",
+        console: "readonly"
       },
     },
   },

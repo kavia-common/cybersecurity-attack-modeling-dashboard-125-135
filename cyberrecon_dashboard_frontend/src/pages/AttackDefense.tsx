@@ -4,7 +4,7 @@ import React from 'react';
  * AttackDefense page placeholder.
  * PUBLIC_INTERFACE
  */
-export default function AttackDefense() {
+export default function AttackDefense(): JSX.Element {
   return (
     <div className="space-y-6">
       <div className="container-card p-4">

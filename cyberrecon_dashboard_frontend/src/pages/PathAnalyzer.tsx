@@ -4,7 +4,7 @@ import React from 'react';
  * PathAnalyzer page placeholder.
  * PUBLIC_INTERFACE
  */
-export default function PathAnalyzer() {
+export default function PathAnalyzer(): JSX.Element {
   return (
     <div className="space-y-6">
       <div className="container-card p-4">

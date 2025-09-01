@@ -24,20 +24,23 @@ export default [
       parser: tsParser,
       parserOptions: {
         project: "./tsconfig.json",
+        ecmaFeatures: { jsx: true },
+      },
+      globals: {
+        document: "readonly",
+        window: "readonly",
+        console: "readonly",
+        setTimeout: "readonly",
+        JSX: "readonly", // silence 'JSX is not defined' for new JSX runtime
       },
     },
     plugins: {
       "@typescript-eslint": tseslint,
     },
     rules: {
-      // Your custom rules here
-    },
-  },
-  {
-    languageOptions: {
-      globals: {
-        document: "readonly",
-      },
+      // Allow unused vars when prefixed with underscore (for typed React props etc.)
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "no-undef": "off"
     },
   },
 ];

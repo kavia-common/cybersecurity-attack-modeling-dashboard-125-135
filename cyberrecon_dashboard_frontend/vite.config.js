@@ -9,6 +9,11 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom'],
   },
+  build: {
+    rollupOptions: {
+      external: ['react-icons', /^react-icons\/.*/],
+    },
+  },
   server: {
     host: '0.0.0.0',
     allowedHosts: ['.kavia.ai'],

@@ -4,7 +4,7 @@ import React from 'react';
  * GraphGeneration page placeholder.
  * PUBLIC_INTERFACE
  */
-export default function GraphGeneration() {
+export default function GraphGeneration(): JSX.Element {
   return (
     <div className="space-y-6">
       <div className="container-card p-4">

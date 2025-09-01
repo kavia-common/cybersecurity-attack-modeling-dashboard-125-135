@@ -8,7 +8,10 @@ import { ThemeProvider } from './state/theme';
 
 const queryClient = new QueryClient();
 
-const root = createRoot(document.getElementById('root'));
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('Root #root not found');
+
+const root = createRoot(rootEl);
 
 root.render(
   <React.StrictMode>

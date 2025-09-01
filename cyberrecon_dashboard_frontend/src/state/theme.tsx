@@ -1,18 +1,20 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-/**
- * ThemeProvider toggles light/dark by setting data-theme attribute on <html>.
- */
+interface ThemeContextValue {
+  theme: 'dark' | 'light';
+  setTheme: (arg0: 'dark' | 'light') => void;
+}
 
 // PUBLIC_INTERFACE
-export const ThemeContext = createContext({
+export const ThemeContext = createContext<ThemeContextValue>({
   theme: 'dark',
-  setTheme: (_t) => {},
+  // default no-op setter
+  setTheme: () => {},
 });
 
 // PUBLIC_INTERFACE
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('dark');
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -25,6 +27,6 @@ export function ThemeProvider({ children }) {
 }
 
 // PUBLIC_INTERFACE
-export function useTheme() {
+export function useTheme(): ThemeContextValue {
   return useContext(ThemeContext);
 }

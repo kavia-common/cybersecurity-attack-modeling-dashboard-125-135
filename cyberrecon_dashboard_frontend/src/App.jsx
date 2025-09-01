@@ -2,10 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Menu, LayoutGrid, ShieldCheck, Network, Activity, User, LogOut, Bot, Play, CheckCircle2 } from 'lucide-react';
 import PlaybookProgress from './components/PlaybookProgress';
+import Tabs, { getDefaultDashboardTabs } from './components/Tabs';
 
 // PUBLIC_INTERFACE
 export default function App() {
   /** App shell with sidebar navigation, top header, and main dashboard content. */
+  const tabDefs = getDefaultDashboardTabs();
+
   return (
     <div className="min-h-screen bg-surface-0 text-[var(--fg)] antialiased">
       <div className="flex h-full">
@@ -91,6 +94,19 @@ export default function App() {
                   </button>
                 ))}
               </div>
+            </motion.section>
+
+            <motion.section
+              className="card p-5"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.12 }}
+            >
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <LayoutGrid className="w-4 h-4 text-primary" />
+                Analysis & Defense
+              </h3>
+              <Tabs tabs={tabDefs} initialKey="vulns" />
             </motion.section>
           </main>
         </div>

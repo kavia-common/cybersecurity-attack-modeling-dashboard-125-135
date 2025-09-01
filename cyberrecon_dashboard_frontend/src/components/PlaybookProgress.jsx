@@ -36,32 +36,38 @@ export default function PlaybookProgress() {
               <div className="flex flex-col items-center">
                 <div className="relative">
                   {isCompleted ? (
-                    <CheckCircle2 className="w-5 h-5 text-secondary" />
+                    <CheckCircle2 className="w-5 h-5 text-[color:var(--success)]" />
                   ) : isActive ? (
                     <motion.div
-                      className="w-5 h-5 rounded-full border-2 border-primary grid place-items-center bg-bg-card"
+                      className="w-5 h-5 rounded-full border-2 grid place-items-center bg-surface-2"
+                      style={{ borderColor: 'var(--primary)' }}
                       animate={{ boxShadow: ['0 0 0 0 rgba(99,102,241,0.45)', '0 0 0 8px rgba(99,102,241,0)'] }}
                       transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}
                     >
                       <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
                     </motion.div>
                   ) : (
-                    <Circle className="w-5 h-5 text-text-muted" />
+                    <Circle className="w-5 h-5 text-muted" />
                   )}
                 </div>
                 {/* vertical line */}
                 {index < steps.length - 1 && (
-                  <div className="flex-1 w-px bg-border/70 my-1 mx-auto"></div>
+                  <div className="flex-1 w-px my-1 mx-auto" style={{ backgroundColor: 'color-mix(in oklab, var(--line) 70%, transparent)' }}></div>
                 )}
               </div>
 
               {/* Content */}
               <motion.div
-                className={`flex-1 p-3 rounded-lg border ${
-                  isActive
-                    ? 'bg-primary/5 border-primary/40 shadow-glow'
-                    : 'bg-bg-card border-border'
-                }`}
+                className={`flex-1 p-3 rounded-lg border`}
+                style={{
+                  backgroundColor: isActive
+                    ? 'color-mix(in oklab, var(--primary) 5%, var(--bg-2))'
+                    : 'var(--bg-2)',
+                  borderColor: isActive
+                    ? 'color-mix(in oklab, var(--primary) 40%, transparent)'
+                    : 'color-mix(in oklab, var(--line) 85%, transparent)',
+                  boxShadow: isActive ? '0 0 0 1px rgba(99, 102, 241, 0.15), 0 8px 30px rgba(99, 102, 241, 0.15)' : undefined,
+                }}
                 initial={{ opacity: 0, x: -6 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.04 }}
@@ -69,17 +75,13 @@ export default function PlaybookProgress() {
                 <div className="flex items-center gap-2">
                   <p className="font-medium">{step.label}</p>
                   {isCompleted && (
-                    <span className="text-xs text-secondary px-2 py-0.5 rounded-full bg-secondary/10 border border-secondary/30">
-                      Completed
-                    </span>
+                    <span className="chip chip-success">Completed</span>
                   )}
                   {isActive && (
-                    <span className="text-xs text-primary px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30">
-                      In Progress
-                    </span>
+                    <span className="chip chip-primary">In Progress</span>
                   )}
                 </div>
-                <p className="text-sm text-text-soft mt-1">{step.description}</p>
+                <p className="text-sm text-soft mt-1">{step.description}</p>
               </motion.div>
             </li>
           );

@@ -2,27 +2,101 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global tweaks */
-:root {
-  color-scheme: dark;
+/* Base layers with semantic tokens for light/dark */
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg-0: theme(colors.surface.0);
+    --bg-1: theme(colors.surface.1);
+    --bg-2: theme(colors.surface.2);
+
+    --fg: theme(colors.content.DEFAULT);
+    --fg-soft: theme(colors.content.soft);
+    --fg-muted: theme(colors.content.muted);
+
+    --line: theme(colors.line.DEFAULT);
+    --primary: theme(colors.primary.DEFAULT);
+    --success: theme(colors.success.DEFAULT);
+    --warning: theme(colors.warning.DEFAULT);
+  }
+
+  /* Light mode support if user removes .dark on html */
+  html:not(.dark) {
+    color-scheme: light;
+    --bg-0: theme(colors.surface.light0);
+    --bg-1: theme(colors.surface.light1);
+    --bg-2: theme(colors.surface.light2);
+
+    --fg: theme(colors.content.light);
+    --fg-soft: theme(colors.content.lightSoft);
+    --fg-muted: theme(colors.content.lightMuted);
+
+    --line: theme(colors.line.light);
+  }
+
+  html, body, #root {
+    @apply h-full;
+  }
+
+  body {
+    background-color: var(--bg-0);
+    color: var(--fg);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, color-mix(in oklab, var(--primary) 25%, transparent), color-mix(in oklab, var(--success) 25%, transparent));
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-0);
+  }
 }
 
-html, body, #root {
-  @apply h-full;
+/* Components */
+@layer components {
+  .card {
+    @apply rounded-xl shadow-soft border;
+    background-color: var(--bg-2);
+    border-color: color-mix(in oklab, var(--line) 85%, transparent);
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors;
+    border-color: color-mix(in oklab, var(--line) 85%, transparent);
+    background-color: color-mix(in oklab, var(--bg-2) 95%, transparent);
+    color: var(--fg);
+  }
+  .btn:hover {
+    background-color: color-mix(in oklab, var(--bg-2) 88%, var(--primary) 12%);
+  }
+
+  .chip {
+    @apply text-xs px-2 py-0.5 rounded-full border;
+  }
+
+  .chip-primary {
+    color: var(--primary);
+    background-color: color-mix(in oklab, var(--primary) 12%, transparent);
+    border-color: color-mix(in oklab, var(--primary) 30%, transparent);
+  }
+  .chip-success {
+    color: var(--success);
+    background-color: color-mix(in oklab, var(--success) 12%, transparent);
+    border-color: color-mix(in oklab, var(--success) 30%, transparent);
+  }
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(99,102,241,0.25), rgba(16,185,129,0.25));
-  border-radius: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #0b0f17;
-}
-
-.card {
-  @apply bg-bg-card border border-border rounded-xl shadow-soft;
+/* Utilities */
+@layer utilities {
+  .text-soft { color: var(--fg-soft); }
+  .text-muted { color: var(--fg-muted); }
+  .bg-surface-0 { background-color: var(--bg-0); }
+  .bg-surface-1 { background-color: var(--bg-1); }
+  .bg-surface-2 { background-color: var(--bg-2); }
+  .border-line { border-color: color-mix(in oklab, var(--line) 85%, transparent); }
+  .shadow-ring { box-shadow: theme(boxShadow.ring); }
 }

@@ -1,6 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, ShieldCheck, Network } from 'lucide-react';
+import { Activity, ShieldCheck, Network, CloudDownload, Cpu, Shield, Workflow, OctagonAlert } from 'lucide-react';
+
+/**
+ * Simple event bus to coordinate tab switches across components without a heavy global store.
+ * PUBLIC_INTERFACE
+ */
+export const TabBus = {
+  _listeners: new Set(),
+  // PUBLIC_INTERFACE
+  subscribe(fn) {
+    /** Subscribe to tab change events. Returns an unsubscribe function. */
+    this._listeners.add(fn);
+    return () => this._listeners.delete(fn);
+  },
+  // PUBLIC_INTERFACE
+  emit(key) {
+    /** Emit a request to switch to the given tab key. */
+    for (const fn of this._listeners) fn(key);
+  },
+};
 
 /**
  * PUBLIC_INTERFACE
@@ -12,6 +31,14 @@ import { Activity, ShieldCheck, Network } from 'lucide-react';
  */
 export default function Tabs({ tabs = [], initialKey }) {
   const [active, setActive] = useState(initialKey || (tabs[0]?.key ?? ''));
+
+  // Listen for external tab change requests (from sidebar/quick actions)
+  useEffect(() => {
+    const unsub = TabBus.subscribe((key) => {
+      if (tabs.find((t) => t.key === key)) setActive(key);
+    });
+    return unsub;
+  }, [tabs]);
 
   return (
     <div className="w-full">
@@ -64,8 +91,13 @@ export default function Tabs({ tabs = [], initialKey }) {
 /**
  * PUBLIC_INTERFACE
  * getDefaultDashboardTabs
- * Helper that returns the three tabs required by the dashboard:
- * Vulnerabilities, Defense, Analyze Path. Uses example/mock data.
+ * Returns full dashboard tab set including:
+ * - Fetch CVE
+ * - Graph Generation
+ * - Attack Defense
+ * - Path Analyzer
+ * - Threat Matrix / Risk Analysis
+ * - Vulnerabilities (table)
  */
 export function getDefaultDashboardTabs() {
   const cveExamples = [
@@ -82,22 +114,40 @@ export function getDefaultDashboardTabs() {
 
   return [
     {
-      key: 'vulns',
-      label: 'Vulnerabilities',
-      icon: Activity,
-      content: <VulnerabilitiesTab data={cveExamples} />,
+      key: 'fetch-cve',
+      label: 'Fetch CVE',
+      icon: CloudDownload,
+      content: <FetchCVETab />,
+    },
+    {
+      key: 'graph-gen',
+      label: 'Graph Generation',
+      icon: Cpu,
+      content: <GraphGenerationTab />,
     },
     {
       key: 'defense',
-      label: 'Defense',
-      icon: ShieldCheck,
+      label: 'Attack Defense',
+      icon: Shield,
       content: <DefenseTab data={defenseExamples} />,
     },
     {
       key: 'analyze',
-      label: 'Analyze Path',
+      label: 'Path Analyzer',
       icon: Network,
       content: <AnalyzePathTab />,
+    },
+    {
+      key: 'threat-matrix',
+      label: 'Threat Matrix / Risk',
+      icon: OctagonAlert,
+      content: <ThreatMatrixTab />,
+    },
+    {
+      key: 'vulns',
+      label: 'Vulnerabilities',
+      icon: Activity,
+      content: <VulnerabilitiesTab data={cveExamples} />,
     },
   ];
 }
@@ -242,6 +292,140 @@ function AnalyzePathTab() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * FetchCVETab
+ * Placeholder form and progress to simulate CVE fetch pipeline.
+ */
+function FetchCVETab() {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="card p-4">
+          <p className="text-sm text-soft">Last Sync</p>
+          <p className="text-xl font-semibold">3h ago</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-sm text-soft">New Items</p>
+          <p className="text-xl font-semibold">57</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-sm text-soft">Vendors</p>
+          <p className="text-xl font-semibold">12</p>
+        </div>
+      </div>
+
+      <div className="card p-5">
+        <div className="flex flex-col md:flex-row gap-3">
+          <input
+            className="flex-1 px-3 py-2 rounded-lg border border-line bg-surface-1"
+            placeholder="Filter by vendor or product (e.g., Microsoft, OpenSSL)"
+          />
+          <button className="btn">
+            <CloudDownload className="w-4 h-4 text-primary" />
+            Fetch Latest
+          </button>
+        </div>
+        <div className="mt-4">
+          <p className="text-sm text-soft mb-2">Ingestion Progress</p>
+          <div className="h-2 rounded-full overflow-hidden bg-[color:color-mix(in_oklab,var(--line)_70%,transparent)]">
+            <div className="h-full w-2/3 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * GraphGenerationTab
+ * Placeholder controls and status for attack graph generation.
+ */
+function GraphGenerationTab() {
+  return (
+    <div className="space-y-4">
+      <div className="card p-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <p className="text-sm text-soft mb-1">Asset Scope</p>
+            <select className="w-full px-3 py-2 rounded-lg border border-line bg-surface-1">
+              <option>All</option>
+              <option>DMZ</option>
+              <option>Internal</option>
+            </select>
+          </div>
+          <div>
+            <p className="text-sm text-soft mb-1">Depth</p>
+            <select className="w-full px-3 py-2 rounded-lg border border-line bg-surface-1">
+              <option>Shallow</option>
+              <option>Balanced</option>
+              <option>Deep</option>
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button className="btn w-full">
+              <Workflow className="w-4 h-4 text-primary" />
+              Generate Graph
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="card p-5">
+        <p className="text-sm text-soft mb-2">Generation Status</p>
+        <div className="h-2 rounded-full overflow-hidden bg-[color:color-mix(in_oklab,var(--line)_70%,transparent)]">
+          <div className="h-full w-1/2 rounded-full" style={{ backgroundColor: 'var(--success)' }} />
+        </div>
+        <p className="text-xs text-soft mt-2">Computing shortest paths and critical nodes…</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * ThreatMatrixTab
+ * Placeholder heatmap-like grid and risk summary.
+ */
+function ThreatMatrixTab() {
+  const severities = ['Low', 'Medium', 'High', 'Critical'];
+  const likelihoods = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+        <div className="md:col-span-2">
+          <p className="text-sm text-soft">Risk Summary</p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {['Critical', 'High', 'Medium', 'Low'].map((s, i) => (
+              <div key={s} className="p-3 rounded-lg border border-line bg-surface-1">
+                <p className="text-xs text-soft">{s}</p>
+                <p className="text-lg font-semibold">{[7, 19, 33, 12][i]}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="md:col-span-4 card p-4">
+          <p className="text-sm text-soft mb-3">Threat Matrix</p>
+          <div className="grid grid-cols-6 gap-1">
+            <div />
+            {severities.map((s) => (
+              <div key={s} className="text-xs text-soft text-center px-1">{s}</div>
+            ))}
+            {likelihoods.map((l, r) => (
+              <React.Fragment key={l}>
+                <div className="text-xs text-soft pr-2 flex items-center">{l}</div>
+                {severities.map((_, c) => {
+                  const intensity = (r + c + 2) / (likelihoods.length + severities.length);
+                  const bg = `color-mix(in oklab, var(--warning) ${Math.round(intensity * 70)}%, transparent)`;
+                  return <div key={`${l}-${c}`} className="h-6 rounded border border-line" style={{ backgroundColor: bg }} />;
+                })}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

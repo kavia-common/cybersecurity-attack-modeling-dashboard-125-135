@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Menu, LayoutGrid, ShieldCheck, Network, Activity, User, LogOut, Bot, Play, CheckCircle2 } from 'lucide-react';
+import { Menu, LayoutGrid, ShieldCheck, Network, Activity, User, LogOut, Bot, Play, CheckCircle2, CloudDownload, Cpu, Shield } from 'lucide-react';
 import PlaybookProgress from './components/PlaybookProgress';
-import Tabs, { getDefaultDashboardTabs } from './components/Tabs';
+import Tabs, { getDefaultDashboardTabs, TabBus } from './components/Tabs';
 
 // PUBLIC_INTERFACE
 export default function App() {
@@ -45,15 +45,16 @@ export default function App() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { title: 'Vulnerability Feed', value: 'Synced', icon: Activity, color: 'text-primary' },
-                    { title: 'Graph Engine', value: 'Active', icon: LayoutGrid, color: 'text-[color:var(--success)]' },
-                    { title: 'Defense Model', value: 'Ready', icon: ShieldCheck, color: 'text-[color:var(--warning)]' },
+                    { title: 'Vulnerability Feed', value: 'Synced', icon: Activity, color: 'text-primary', target: 'fetch-cve' },
+                    { title: 'Graph Engine', value: 'Active', icon: LayoutGrid, color: 'text-[color:var(--success)]', target: 'graph-gen' },
+                    { title: 'Defense Model', value: 'Ready', icon: ShieldCheck, color: 'text-[color:var(--warning)]', target: 'defense' },
                   ].map((stat) => (
-                    <motion.div
+                    <motion.button
                       key={stat.title}
-                      className="card p-4"
+                      className="card p-4 text-left"
                       whileHover={{ scale: 1.02 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      onClick={() => TabBus.emit(stat.target)}
                     >
                       <div className="flex items-center gap-3">
                         <stat.icon className={`w-5 h-5 ${stat.color}`} />
@@ -62,7 +63,7 @@ export default function App() {
                           <p className="font-semibold">{stat.value}</p>
                         </div>
                       </div>
-                    </motion.div>
+                    </motion.button>
                   ))}
                 </div>
               </motion.section>
@@ -80,14 +81,15 @@ export default function App() {
               </h3>
               <div className="flex flex-wrap gap-3">
                 {[
-                  { label: 'Fetch CVEs', icon: Activity },
-                  { label: 'Generate Graph', icon: LayoutGrid },
-                  { label: 'Plan Defense', icon: ShieldCheck },
-                  { label: 'Analyze Paths', icon: Network },
+                  { label: 'Fetch CVEs', icon: CloudDownload, target: 'fetch-cve' },
+                  { label: 'Generate Graph', icon: Cpu, target: 'graph-gen' },
+                  { label: 'Plan Defense', icon: Shield, target: 'defense' },
+                  { label: 'Analyze Paths', icon: Network, target: 'analyze' },
                 ].map((action) => (
                   <button
                     key={action.label}
                     className="btn"
+                    onClick={() => TabBus.emit(action.target)}
                   >
                     <action.icon className="w-4 h-4 text-primary" />
                     {action.label}
@@ -126,16 +128,18 @@ function Sidebar() {
       </div>
       <nav className="p-3 space-y-1">
         {[
-          { label: 'Dashboard', icon: LayoutGrid, active: true },
-          { label: 'Vulnerabilities', icon: Activity },
-          { label: 'Graph', icon: Network },
-          { label: 'Defense', icon: ShieldCheck },
-          { label: 'Analyzer', icon: Play },
+          { label: 'Dashboard', icon: LayoutGrid, target: null, active: true },
+          { label: 'Fetch CVE', icon: CloudDownload, target: 'fetch-cve' },
+          { label: 'Graph Generation', icon: Cpu, target: 'graph-gen' },
+          { label: 'Attack Defense', icon: ShieldCheck, target: 'defense' },
+          { label: 'Path Analyzer', icon: Network, target: 'analyze' },
+          { label: 'Threat Matrix / Risk', icon: Activity, target: 'threat-matrix' },
+          { label: 'Vulnerabilities', icon: Activity, target: 'vulns' },
         ].map((item) => (
-          <a
+          <button
             key={item.label}
-            href="#"
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg border transition ${
+            onClick={() => item.target && TabBus.emit(item.target)}
+            className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg border transition ${
               item.active
                 ? 'bg-[color:color-mix(in_oklab,var(--primary)_12%,transparent)] border-[color:color-mix(in_oklab,var(--primary)_30%,transparent)]'
                 : 'bg-transparent border-transparent text-soft hover:bg-surface-2 hover:border-line hover:text-[var(--fg)]'
@@ -143,7 +147,7 @@ function Sidebar() {
           >
             <item.icon className="w-4 h-4" />
             <span>{item.label}</span>
-          </a>
+          </button>
         ))}
       </nav>
     </aside>
